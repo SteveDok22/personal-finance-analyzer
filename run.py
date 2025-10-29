@@ -428,3 +428,175 @@ class PersonalFinanceAnalyzer:
         
         input("\nPress Enter to continue...")
         return True
+    def export_results(self):
+        """Export analysis results to files."""
+        if not self.data_loaded:
+            print("\n❌ Please load data first (Option 1 or 3)")
+            input("Press Enter to continue...")
+            return True
+            
+        print("\n" + "-" * 50)
+        print("EXPORTING RESULTS")
+        print("-" * 50)
+        
+        print("\nExport Options:")
+        print("1. Export charts (PNG)")
+        print("2. Export cleaned data (CSV)")
+        print("3. Export both")
+        
+        choice = input("\nSelect export option (1-3): ").strip()
+        
+        if choice == '1' or choice == '3':
+            print("\n📊 Exporting charts...")
+            self.visualizer.export_all_charts()
+        
+        if choice == '2' or choice == '3':
+            print("\n💾 Exporting cleaned data...")
+            self.data_handler.export_cleaned_data('exports/data/cleaned_data.csv')
+        
+        if choice not in ['1', '2', '3']:
+            print("❌ Invalid choice. Please select 1, 2, or 3.")
+        
+        # Log session if connected
+        if self.sheets_connected and self.sheets_handler:
+            self.sheets_handler.log_user_session(
+                self.username, 
+                "Exported analysis results"
+            )
+        
+        input("\nPress Enter to continue...")
+        return True
+    
+    def save_to_google_sheets(self):
+        """Save analysis results to Google Sheets."""
+        if not self.sheets_connected:
+            print("\n❌ Please connect to Google Sheets first (Option 2)")
+            print("💡 Or use Option 10 to export locally")
+            input("Press Enter to continue...")
+            return True
+        
+        if not self.data_loaded:
+            print("\n❌ Please load data first (Option 1 or 3)")
+            input("Press Enter to continue...")
+            return True
+        
+        print("\n" + "-" * 50)
+        print("SAVING TO GOOGLE SHEETS")
+        print("-" * 50)
+        
+        print("\nWhat would you like to save?")
+        print("1. Analysis summary")
+        print("2. Cleaned data")
+        print("3. Both")
+        
+        choice = input("\nSelect option (1-3): ").strip()
+        
+        try:
+            if choice == '1' or choice == '3':
+                # Get comprehensive analysis
+                report = self.analyzer.get_comprehensive_report()
+                
+                # Prepare analysis data
+                analysis_data = {
+                    'analysis_type': 'Comprehensive Report',
+                    'total_respondents': len(self.data_handler.data),
+                    'key_finding': ', '.join(report.get('Key Findings', [])[:2]),
+                    'details': report.get('Executive Summary', {})
+                }
+                
+                self.sheets_handler.save_analysis_results(analysis_data)
+            
+            if choice == '2' or choice == '3':
+                self.sheets_handler.export_dataframe_to_sheets(
+                    self.data_handler.data,
+                    'cleaned_survey_data'
+                )
+            
+            if choice not in ['1', '2', '3']:
+                print("❌ Invalid choice. Please select 1, 2, or 3.")
+            
+            # Log session
+            self.sheets_handler.log_user_session(
+                self.username, 
+                "Saved results to Google Sheets"
+            )
+            
+        except Exception as e:
+            print(f"❌ Error: {str(e)}")
+        
+        input("\nPress Enter to continue...")
+        return True
+    
+    def view_sheets_info(self):
+        """View Google Sheets connection information."""
+        print("\n" + "-" * 50)
+        print("GOOGLE SHEETS INFORMATION")
+        print("-" * 50)
+        
+        if not self.sheets_connected:
+            print("\n❌ Not connected to Google Sheets")
+            print("💡 Use Option 2 to connect")
+            print("\nNote: Google Sheets is optional!")
+            print("The app works perfectly with local CSV files (Option 1)")
+        else:
+            info = self.sheets_handler.get_spreadsheet_info()
+            
+            if 'error' in info:
+                print(f"\n❌ Error: {info['error']}")
+            else:
+                print(f"\n📊 Spreadsheet: {info.get('title', 'N/A')}")
+                print(f"🔗 URL: {info.get('url', 'N/A')}")
+                print(f"📑 Total Worksheets: {info.get('worksheets', 0)}")
+                print(f"\n📄 Worksheet Names:")
+                for name in info.get('worksheet_names', []):
+                    print(f"  • {name}")
+        
+        input("\nPress Enter to continue...")
+        return True
+    
+    def run(self):
+        """Main application loop."""
+        self.display_welcome()
+        
+        while True:
+            self.display_menu()
+            choice = input("\nEnter your choice (1-13): ").strip()
+            
+            if not validate_choice(choice, 1, 13):
+                print("\n❌ Invalid choice. Please enter a number between 1 and 13.")
+                input("Press Enter to continue...")
+                continue
+                
+            continue_app = self.handle_menu_choice(choice)
+            
+            if not continue_app:
+                print("\n" + "=" * 60)
+                print(f"Thank you for using Personal Finance Survey Analyzer, {self.username}!")
+                print("=" * 60)
+                
+                # Close Google Sheets connection if active
+                if self.sheets_connected and self.sheets_handler:
+                    self.sheets_handler.log_user_session(
+                        self.username, 
+                        "Exited application"
+                    )
+                    self.sheets_handler.close_connection()
+                
+                break
+
+
+def main():
+    """Application entry point."""
+    try:
+        app = PersonalFinanceAnalyzer()
+        app.run()
+    except KeyboardInterrupt:
+        print("\n\nApplication terminated by user.")
+        sys.exit(0)
+    except Exception as e:
+        print(f"\nAn unexpected error occurred: {str(e)}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
