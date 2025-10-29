@@ -206,3 +206,225 @@ class PersonalFinanceAnalyzer:
             
         input("\nPress Enter to continue...")
         return True
+    def view_data_summary(self):
+        """Display basic data summary."""
+        if not self.data_loaded:
+            print("\n❌ Please load data first (Option 1 or 3)")
+            input("Press Enter to continue...")
+            return True
+            
+        print("\n" + "-" * 50)
+        print("DATA SUMMARY")
+        print("-" * 50)
+        
+        summary = self.data_handler.get_data_summary()
+        
+        for section, data in summary.items():
+            print(f"\n{section}:")
+            for key, value in data.items():
+                print(f"  {key}: {value}")
+        
+        input("\nPress Enter to continue...")
+        return True
+        
+    def analyze_spending_patterns(self):
+        """Analyze spending patterns across categories."""
+        if not self.data_loaded:
+            print("\n❌ Please load data first (Option 1 or 3)")
+            input("Press Enter to continue...")
+            return True
+            
+        print("\n" + "-" * 50)
+        print("SPENDING PATTERNS ANALYSIS")
+        print("-" * 50)
+        
+        analysis = self.analyzer.get_spending_analysis()
+        
+        # Display overview
+        if "Spending Overview" in analysis:
+            print("\n📊 Spending Overview:")
+            for key, value in analysis["Spending Overview"].items():
+                print(f"  {key}: {value}")
+        
+        # Display insights
+        if "Insights" in analysis:
+            print("\n💡 Key Insights:")
+            for insight in analysis["Insights"]:
+                print(f"  • {insight}")
+        
+        # Ask if user wants visualization
+        show_viz = input("\n📈 Would you like to see spending charts? (yes/no): ").strip().lower()
+        if show_viz in ['yes', 'y']:
+            self.visualizer.create_spending_charts()
+        
+        input("\nPress Enter to continue...")
+        return True
+        
+    def compare_income_savings(self):
+        """Compare income vs savings analysis."""
+        if not self.data_loaded:
+            print("\n❌ Please load data first (Option 1 or 3)")
+            input("Press Enter to continue...")
+            return True
+            
+        print("\n" + "-" * 50)
+        print("INCOME VS SAVINGS ANALYSIS")
+        print("-" * 50)
+        
+        analysis = self.analyzer.get_savings_analysis()
+        
+        # Display savings overview
+        if "Savings Overview" in analysis:
+            print("\n💰 Savings Overview:")
+            for key, value in analysis["Savings Overview"].items():
+                print(f"  {key}: {value}")
+        
+        # Display savings rate
+        if "Savings Rate Analysis" in analysis:
+            print("\n📊 Savings Rate Analysis:")
+            for key, value in analysis["Savings Rate Analysis"].items():
+                print(f"  {key}: {value}")
+        
+        # Display insights
+        if "Insights" in analysis:
+            print("\n💡 Key Insights:")
+            for insight in analysis["Insights"]:
+                print(f"  • {insight}")
+        
+        # Ask if user wants visualization
+        show_viz = input("\n📈 Would you like to see savings charts? (yes/no): ").strip().lower()
+        if show_viz in ['yes', 'y']:
+            self.visualizer.create_savings_charts()
+        
+        input("\nPress Enter to continue...")
+        return True
+    
+    def analyze_crypto_investments(self):
+        """Analyze cryptocurrency and investment preferences."""
+        if not self.data_loaded:
+            print("\n❌ Please load data first (Option 1 or 3)")
+            input("Press Enter to continue...")
+            return True
+            
+        print("\n" + "-" * 50)
+        print("CRYPTOCURRENCY & INVESTMENT ANALYSIS")
+        print("-" * 50)
+        
+        analysis = self.analyzer.get_investment_analysis()
+        
+        # Display investment preferences
+        if "Investment Preferences" in analysis and "Distribution" in analysis["Investment Preferences"]:
+            print("\n📈 Investment Preferences:")
+            for inv_type, count in analysis["Investment Preferences"]["Distribution"].items():
+                print(f"  {inv_type}: {count}")
+        
+        # Display crypto analysis
+        if "Cryptocurrency Analysis" in analysis:
+            print("\n🪙 Cryptocurrency Analysis:")
+            for key, value in analysis["Cryptocurrency Analysis"].items():
+                print(f"  {key}: {value}")
+        
+        # Display insights
+        if "Insights" in analysis:
+            print("\n💡 Key Insights:")
+            for insight in analysis["Insights"]:
+                print(f"  • {insight}")
+        
+        # Ask if user wants visualization
+        show_viz = input("\n📈 Would you like to see investment charts? (yes/no): ").strip().lower()
+        if show_viz in ['yes', 'y']:
+            self.visualizer.create_investment_charts()
+        
+        input("\nPress Enter to continue...")
+        return True
+    
+    def analyze_financial_literacy(self):
+        """Analyze financial literacy scores and correlations."""
+        if not self.data_loaded:
+            print("\n❌ Please load data first (Option 1 or 3)")
+            input("Press Enter to continue...")
+            return True
+            
+        print("\n" + "-" * 50)
+        print("FINANCIAL LITERACY INSIGHTS")
+        print("-" * 50)
+        
+        analysis = self.analyzer.get_financial_literacy_analysis()
+        
+        # Display literacy overview
+        if "Literacy Overview" in analysis:
+            print("\n🎓 Literacy Overview:")
+            for key, value in analysis["Literacy Overview"].items():
+                print(f"  {key}: {value}")
+        
+        # Display score distribution
+        if "Score Distribution" in analysis:
+            print("\n📊 Score Distribution:")
+            for key, value in analysis["Score Distribution"].items():
+                print(f"  {key}: {value}")
+        
+        # Display correlations
+        if "Correlations" in analysis:
+            print("\n🔗 Correlations with Other Factors:")
+            for key, value in analysis["Correlations"].items():
+                print(f"  Literacy vs {key}: {value}")
+        
+        # Display insights
+        if "Insights" in analysis:
+            print("\n💡 Key Insights:")
+            for insight in analysis["Insights"]:
+                print(f"  • {insight}")
+        
+        # Ask if user wants visualization
+        show_viz = input("\n📈 Would you like to see literacy charts? (yes/no): ").strip().lower()
+        if show_viz in ['yes', 'y']:
+            self.visualizer.create_financial_literacy_charts()
+        
+        input("\nPress Enter to continue...")
+        return True
+    
+    def generate_complete_report(self):
+        """Generate a complete analysis report."""
+        if not self.data_loaded:
+            print("\n❌ Please load data first (Option 1 or 3)")
+            input("Press Enter to continue...")
+            return True
+            
+        print("\n" + "-" * 50)
+        print("GENERATING COMPLETE REPORT")
+        print("-" * 50)
+        
+        report = self.analyzer.get_comprehensive_report()
+        
+        # Display executive summary
+        print("\n" + "=" * 50)
+        print("EXECUTIVE SUMMARY")
+        print("=" * 50)
+        for key, value in report["Executive Summary"].items():
+            print(f"{key}: {value}")
+        
+        # Display all key findings
+        print("\n" + "=" * 50)
+        print("KEY FINDINGS")
+        print("=" * 50)
+        for i, finding in enumerate(report["Key Findings"], 1):
+            print(f"{i}. {finding}")
+        
+        # Ask if user wants detailed breakdown
+        show_detail = input("\n📄 Would you like to see detailed analysis sections? (yes/no): ").strip().lower()
+        if show_detail in ['yes', 'y']:
+            for section_name, section_data in report["Detailed Analysis"].items():
+                print("\n" + "-" * 50)
+                print(section_name.upper())
+                print("-" * 50)
+                if isinstance(section_data, dict) and "Insights" in section_data:
+                    for insight in section_data["Insights"]:
+                        print(f"  • {insight}")
+        
+        # Ask if user wants comprehensive dashboard
+        show_dash = input("\n📊 Would you like to see the comprehensive dashboard? (yes/no): ").strip().lower()
+        if show_dash in ['yes', 'y']:
+            self.visualizer.create_comprehensive_dashboard()
+        
+        input("\nPress Enter to continue...")
+        return True
