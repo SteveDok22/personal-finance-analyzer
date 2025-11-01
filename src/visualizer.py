@@ -1,8 +1,6 @@
 """
-Data Visualizer Module for Personal Finance Survey Analyzer.
-
-This module handles creating charts and visualizations for the analysis results
-using matplotlib and seaborn libraries.
+Data Visualizer Module - STREAMLIT COMPATIBLE VERSION
+Modified to return figures for web display
 """
 
 import matplotlib.pyplot as plt
@@ -10,7 +8,7 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import os
-from src.utils import create_directory_if_not_exists, display_success_message, display_error_message
+
 
 
 class DataVisualizer:
@@ -44,16 +42,14 @@ class DataVisualizer:
             bool: True if successful
         """
         if self.data.empty:
-            display_error_message("No data available for visualization")
-            return False
+            return None
         
         try:
             # Find spending columns
             spending_cols = [col for col in self.data.columns if 'spending' in col.lower()]
             
             if not spending_cols:
-                display_error_message("No spending data found")
-                return False
+                return None
             
             # Create figure with subplots
             fig, axes = plt.subplots(2, 2, figsize=(15, 12))
@@ -111,30 +107,21 @@ class DataVisualizer:
             
             # Save if path provided
             if save_path:
-                create_directory_if_not_exists(os.path.dirname(save_path))
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
                 plt.savefig(save_path, dpi=300, bbox_inches='tight')
-                display_success_message(f"Spending charts saved to {save_path}")
-            
-            plt.show()
-            return True
+                plt.close()
+                return True
+            else:
+                return fig  # Return figure for Streamlit display
             
         except Exception as e:
-            display_error_message(f"Error creating spending charts: {str(e)}")
-            return False
+            print(f"Error creating spending charts: {str(e)}")
+            return None
     
     def create_savings_charts(self, save_path=None):
-        """
-        Create visualizations for savings analysis.
-        
-        Args:
-            save_path (str): Optional path to save charts
-            
-        Returns:
-            bool: True if successful
-        """
+        """Create savings visualizations - returns figure for Streamlit."""
         if self.data.empty or 'monthly_savings' not in self.data.columns:
-            display_error_message("No savings data available")
-            return False
+            return None
         
         try:
             fig, axes = plt.subplots(2, 2, figsize=(15, 12))
@@ -180,44 +167,33 @@ class DataVisualizer:
             
             # 4. Emergency fund analysis
             if 'emergency_fund_months' in self.data.columns:
-                fund_categories = ['<3 months', '3-6 months', '6+ months']
                 fund_counts = [
                     len(self.data[self.data['emergency_fund_months'] < 3]),
                     len(self.data[(self.data['emergency_fund_months'] >= 3) & (self.data['emergency_fund_months'] < 6)]),
                     len(self.data[self.data['emergency_fund_months'] >= 6])
                 ]
-                
-                colors = ['red', 'orange', 'green']
-                axes[1, 1].pie(fund_counts, labels=fund_categories, autopct='%1.1f%%', colors=colors)
+                axes[1, 1].pie(fund_counts, labels=['<3 months', '3-6 months', '6+ months'], 
+                              autopct='%1.1f%%', colors=['red', 'orange', 'green'])
                 axes[1, 1].set_title('Emergency Fund Adequacy')
             
             plt.tight_layout()
             
             if save_path:
-                create_directory_if_not_exists(os.path.dirname(save_path))
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
                 plt.savefig(save_path, dpi=300, bbox_inches='tight')
-                display_success_message(f"Savings charts saved to {save_path}")
-            
-            plt.show()
-            return True
+                plt.close()
+                return True
+            else:
+                return fig
             
         except Exception as e:
-            display_error_message(f"Error creating savings charts: {str(e)}")
-            return False
+            print(f"Error creating savings charts: {str(e)}")
+            return None
         
     def create_investment_charts(self, save_path=None):
-        """
-        Create visualizations for investment and crypto analysis.
-        
-        Args:
-            save_path (str): Optional path to save charts
-            
-        Returns:
-            bool: True if successful
-        """
+        """Create investment visualizations - returns figure for Streamlit."""
         if self.data.empty:
-            display_error_message("No data available")
-            return False
+            return None
         
         try:
             fig, axes = plt.subplots(2, 2, figsize=(15, 12))
@@ -265,30 +241,21 @@ class DataVisualizer:
             plt.tight_layout()
             
             if save_path:
-                create_directory_if_not_exists(os.path.dirname(save_path))
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
                 plt.savefig(save_path, dpi=300, bbox_inches='tight')
-                display_success_message(f"Investment charts saved to {save_path}")
-            
-            plt.show()
-            return True
+                plt.close()
+                return True
+            else:
+                return fig
             
         except Exception as e:
-            display_error_message(f"Error creating investment charts: {str(e)}")
-            return False
+            print(f"Error creating investment charts: {str(e)}")
+            return None
     
     def create_financial_literacy_charts(self, save_path=None):
-        """
-        Create visualizations for financial literacy analysis.
-        
-        Args:
-            save_path (str): Optional path to save charts
-            
-        Returns:
-            bool: True if successful
-        """
+        """Create financial literacy visualizations - returns figure for Streamlit."""
         if self.data.empty or 'financial_literacy_score' not in self.data.columns:
-            display_error_message("No financial literacy data available")
-            return False
+            return None
         
         try:
             fig, axes = plt.subplots(2, 2, figsize=(15, 12))
@@ -333,45 +300,33 @@ class DataVisualizer:
                                    f'{value:.1f}', ha='center', va='bottom')
             
             # 4. Literacy categories
-            high_literacy = len(self.data[self.data['financial_literacy_score'] >= 8])
-            medium_literacy = len(self.data[(self.data['financial_literacy_score'] >= 6) & 
+            high = len(self.data[self.data['financial_literacy_score'] >= 8])
+            medium = len(self.data[(self.data['financial_literacy_score'] >= 6) & 
                                           (self.data['financial_literacy_score'] < 8)])
-            low_literacy = len(self.data[self.data['financial_literacy_score'] < 6])
+            low = len(self.data[self.data['financial_literacy_score'] < 6])
             
-            categories = ['Low (<6)', 'Medium (6-7)', 'High (8-10)']
-            counts = [low_literacy, medium_literacy, high_literacy]
-            colors = ['red', 'orange', 'green']
-            
-            axes[1, 1].pie(counts, labels=categories, autopct='%1.1f%%', colors=colors)
+            axes[1, 1].pie([low, medium, high], labels=['Low (<6)', 'Medium (6-7)', 'High (8-10)'], 
+                          autopct='%1.1f%%', colors=['red', 'orange', 'green'])
             axes[1, 1].set_title('Financial Literacy Categories')
             
             plt.tight_layout()
             
             if save_path:
-                create_directory_if_not_exists(os.path.dirname(save_path))
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
                 plt.savefig(save_path, dpi=300, bbox_inches='tight')
-                display_success_message(f"Financial literacy charts saved to {save_path}")
-            
-            plt.show()
-            return True
+                plt.close()
+                return True
+            else:
+                return fig
             
         except Exception as e:
-            display_error_message(f"Error creating financial literacy charts: {str(e)}")
-            return False
+            print(f"Error creating literacy charts: {str(e)}")
+            return None
     
     def create_comprehensive_dashboard(self, save_path=None):
-        """
-        Create a comprehensive dashboard with key metrics.
-        
-        Args:
-            save_path (str): Optional path to save the dashboard
-            
-        Returns:
-            bool: True if successful
-        """
+        """Create comprehensive dashboard - returns figure for Streamlit."""
         if self.data.empty:
-            display_error_message("No data available")
-            return False
+            return None
         
         try:
             fig = plt.figure(figsize=(20, 16))
@@ -414,15 +369,11 @@ class DataVisualizer:
             # 5. Technology adoption
             ax5 = fig.add_subplot(gs[1, 1])
             if 'uses_mobile_banking' in self.data.columns and 'owns_crypto' in self.data.columns:
-                mobile_banking = self.data['uses_mobile_banking'].sum()
-                crypto_owners = self.data['owns_crypto'].sum()
-                
-                categories = ['Mobile Banking', 'Crypto Ownership']
-                values = [mobile_banking, crypto_owners]
-                
-                ax5.bar(categories, values, color=['blue', 'orange'])
+                mobile = self.data['uses_mobile_banking'].sum()
+                crypto = self.data['owns_crypto'].sum()
+                ax5.bar(['Mobile Banking', 'Crypto'], [mobile, crypto], color=['blue', 'orange'])
                 ax5.set_title('Technology Adoption')
-                ax5.set_ylabel('Number of Users')
+                ax5.set_ylabel('Users')
             
             # 6. Spending breakdown
             ax6 = fig.add_subplot(gs[1, 2:])
@@ -433,12 +384,10 @@ class DataVisualizer:
                     for col in spending_cols
                 }
                 
-                categories = list(spending_totals.keys())
-                values = list(spending_totals.values())
-                
-                ax6.bar(categories, values, color=sns.color_palette("husl", len(categories)))
+                ax6.bar(spending_totals.keys(), spending_totals.values(), 
+                       color=sns.color_palette("husl", len(spending_totals)))
                 ax6.set_title('Total Spending by Category')
-                ax6.set_ylabel('Total Amount ($)')
+                ax6.set_ylabel('Total ($)')
                 ax6.tick_params(axis='x', rotation=45)
             
             # 7. Financial literacy scores
@@ -453,15 +402,13 @@ class DataVisualizer:
             # 8. Emergency fund adequacy
             ax8 = fig.add_subplot(gs[2, 2:])
             if 'emergency_fund_months' in self.data.columns:
-                fund_categories = ['<3 months', '3-6 months', '6+ months']
                 fund_counts = [
                     len(self.data[self.data['emergency_fund_months'] < 3]),
                     len(self.data[(self.data['emergency_fund_months'] >= 3) & (self.data['emergency_fund_months'] < 6)]),
                     len(self.data[self.data['emergency_fund_months'] >= 6])
                 ]
-                
-                colors = ['red', 'orange', 'green']
-                ax8.pie(fund_counts, labels=fund_categories, autopct='%1.1f%%', colors=colors)
+                ax8.pie(fund_counts, labels=['<3 months', '3-6 months', '6+ months'], 
+                       autopct='%1.1f%%', colors=['red', 'orange', 'green'])
                 ax8.set_title('Emergency Fund Adequacy')
             
             # 9. Summary statistics table
@@ -469,79 +416,44 @@ class DataVisualizer:
             ax9.axis('off')
             
             # Create summary statistics
-            summary_data = []
-            if not self.data.empty:
-                summary_data = [
-                    ['Total Respondents', len(self.data)],
-                    ['Average Age', f"{self.data['age'].mean():.1f} years" if 'age' in self.data.columns else 'N/A'],
-                    ['Average Income', f"${self.data['annual_income'].mean():,.0f}" if 'annual_income' in self.data.columns else 'N/A'],
-                    ['Average Savings', f"${self.data['monthly_savings'].mean():.0f}" if 'monthly_savings' in self.data.columns else 'N/A'],
-                    ['Mobile Banking Adoption', f"{(self.data['uses_mobile_banking'].sum()/len(self.data)*100):.1f}%" if 'uses_mobile_banking' in self.data.columns else 'N/A'],
-                    ['Crypto Ownership', f"{(self.data['owns_crypto'].sum()/len(self.data)*100):.1f}%" if 'owns_crypto' in self.data.columns else 'N/A']
-                ]
+            summary_data = [
+                ['Total Respondents', len(self.data)],
+                ['Avg Age', f"{self.data['age'].mean():.1f}" if 'age' in self.data.columns else 'N/A'],
+                ['Avg Income', f"${self.data['annual_income'].mean():,.0f}" if 'annual_income' in self.data.columns else 'N/A'],
+                ['Avg Savings', f"${self.data['monthly_savings'].mean():.0f}" if 'monthly_savings' in self.data.columns else 'N/A'],
+            ]
             
-            if summary_data:
-                table = ax9.table(cellText=summary_data, 
-                                 colLabels=['Metric', 'Value'],
-                                 cellLoc='center',
-                                 loc='center',
-                                 bbox=[0.2, 0.2, 0.6, 0.6])
-                table.auto_set_font_size(False)
-                table.set_fontsize(12)
-                table.scale(1.2, 1.5)
-                ax9.set_title('Key Statistics Summary', fontsize=14, fontweight='bold')
+            table = ax9.table(cellText=summary_data, colLabels=['Metric', 'Value'],
+                             cellLoc='center', loc='center', bbox=[0.2, 0.2, 0.6, 0.6])
+            table.auto_set_font_size(False)
+            table.set_fontsize(12)
+            table.scale(1.2, 1.5)
+            ax9.set_title('Key Statistics', fontsize=14, fontweight='bold')
             
             if save_path:
-                create_directory_if_not_exists(os.path.dirname(save_path))
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
                 plt.savefig(save_path, dpi=300, bbox_inches='tight')
-                display_success_message(f"Dashboard saved to {save_path}")
-            
-            plt.show()
-            return True
-            
-        except Exception as e:
-            display_error_message(f"Error creating dashboard: {str(e)}")
-            return False
-    
-    def export_all_charts(self, base_path="exports/charts"):
-        """
-        Export all chart types to files.
-        
-        Args:
-            base_path (str): Base directory for saving charts
-            
-        Returns:
-            bool: True if all exports successful
-        """
-        try:
-            create_directory_if_not_exists(base_path)
-            
-            success_count = 0
-            total_charts = 5
-            
-            # Export individual chart types
-            if self.create_spending_charts(f"{base_path}/spending_analysis.png"):
-                success_count += 1
-            
-            if self.create_savings_charts(f"{base_path}/savings_analysis.png"):
-                success_count += 1
-            
-            if self.create_investment_charts(f"{base_path}/investment_analysis.png"):
-                success_count += 1
-            
-            if self.create_financial_literacy_charts(f"{base_path}/literacy_analysis.png"):
-                success_count += 1
-            
-            if self.create_comprehensive_dashboard(f"{base_path}/comprehensive_dashboard.png"):
-                success_count += 1
-            
-            if success_count == total_charts:
-                display_success_message(f"All {total_charts} chart files exported to {base_path}")
+                plt.close()
                 return True
             else:
-                display_error_message(f"Only {success_count}/{total_charts} charts exported successfully")
-                return False
-                
+                return fig
+            
         except Exception as e:
-            display_error_message(f"Error exporting charts: {str(e)}")
-            return False    
+            print(f"Error creating dashboard: {str(e)}")
+            return None
+    
+    def export_all_charts(self, base_path="exports/charts"):
+        """Export all charts to files."""
+        try:
+            os.makedirs(base_path, exist_ok=True)
+            
+            self.create_spending_charts(f"{base_path}/spending_analysis.png")
+            self.create_savings_charts(f"{base_path}/savings_analysis.png")
+            self.create_investment_charts(f"{base_path}/investment_analysis.png")
+            self.create_financial_literacy_charts(f"{base_path}/literacy_analysis.png")
+            self.create_comprehensive_dashboard(f"{base_path}/comprehensive_dashboard.png")
+            
+            return True
+        except Exception as e:
+            print(f"Error exporting charts: {str(e)}")
+            return False
