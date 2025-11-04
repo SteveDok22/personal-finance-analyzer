@@ -17,12 +17,12 @@ def clear_screen():
 def validate_choice(choice, min_val, max_val):
     """
     Validate user menu choice.
-    
+
     Args:
         choice (str): User input choice
         min_val (int): Minimum valid value
         max_val (int): Maximum valid value
-        
+
     Returns:
         bool: True if choice is valid, False otherwise
     """
@@ -36,10 +36,10 @@ def validate_choice(choice, min_val, max_val):
 def validate_yes_no(user_input):
     """
     Validate yes/no user input.
-    
+
     Args:
         user_input (str): User input string
-        
+
     Returns:
         bool or None: True for yes, False for no, None for invalid
     """
@@ -55,10 +55,10 @@ def validate_yes_no(user_input):
 def format_currency(amount):
     """
     Format numeric value as currency.
-    
+
     Args:
         amount (float): Numeric amount
-        
+
     Returns:
         str: Formatted currency string
     """
@@ -71,11 +71,11 @@ def format_currency(amount):
 def format_percentage(value, decimal_places=1):
     """
     Format numeric value as percentage.
-    
+
     Args:
         value (float): Numeric value (0-1 for percentage)
         decimal_places (int): Number of decimal places
-        
+
     Returns:
         str: Formatted percentage string
     """
@@ -88,7 +88,7 @@ def format_percentage(value, decimal_places=1):
 def print_section_header(title, width=50):
     """
     Print a formatted section header.
-    
+
     Args:
         title (str): Header title
         width (int): Total width of the header
@@ -101,11 +101,11 @@ def print_section_header(title, width=50):
 def print_subsection_header(title, width=40):
     """
     Print a formatted subsection header.
-    
+
     Args:
         title (str): Header title
         width (int): Total width of the header
-    """
+     """
     print("\n" + "-" * width)
     print(f"{title}")
     print("-" * width)
@@ -114,12 +114,12 @@ def print_subsection_header(title, width=40):
 def safe_divide(numerator, denominator, default=0):
     """
     Safely divide two numbers, handling division by zero.
-    
+
     Args:
         numerator (float): Numerator value
         denominator (float): Denominator value
         default (float): Default value if division by zero
-        
+
     Returns:
         float: Result of division or default value
     """
@@ -154,7 +154,7 @@ def wait_for_user():
 def handle_file_error(error, filename):
     """
     Handle file-related errors with user-friendly messages.
-    
+
     Args:
         error (Exception): The exception that occurred
         filename (str): Name of the file being processed
@@ -172,10 +172,10 @@ def handle_file_error(error, filename):
 def create_directory_if_not_exists(directory_path):
     """
     Create directory if it doesn't exist.
-    
+
     Args:
         directory_path (str): Path to directory
-        
+
     Returns:
         bool: True if directory exists or was created successfully
     """
