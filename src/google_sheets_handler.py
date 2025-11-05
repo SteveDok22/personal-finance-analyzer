@@ -50,8 +50,7 @@ class GoogleSheetsHandler:
         try:
             display_loading_message("Connecting to Google Sheets...")
 
-            # Try to get credentials from environment variable first (for
-            # Heroku)
+            # Try to get credentials from environment variable first
             creds_json = os.environ.get('CREDS')
 
             if creds_json:
@@ -61,6 +60,15 @@ class GoogleSheetsHandler:
                     creds_dict, scopes=self.SCOPE)
             else:
                 # Running locally - load from file
+                if not os.path.exists(self.credentials_file):
+                    display_error_message(
+                        f"Credentials file not found: {self.credentials_file}"
+                    )
+                    display_error_message(
+                        "Please ensure creds.json is in the project root"
+                    )
+                    return False
+
                 creds = Credentials.from_service_account_file(
                     self.credentials_file,
                     scopes=self.SCOPE
@@ -75,15 +83,19 @@ class GoogleSheetsHandler:
 
         except FileNotFoundError:
             display_error_message(
-                f"Credentials file not found: {
-                    self.credentials_file}")
+                f"Credentials file not found: {self.credentials_file}"
+            )
             display_error_message(
-                "Please ensure creds.json is in the project root directory")
+                "Please ensure creds.json is in the project root directory"
+            )
             return False
-        except Exception as e:
+        except json.JSONDecodeError:
+            display_error_message("Invalid JSON in credentials file")
+            return False
+        except (IOError, OSError) as e:
             display_error_message(
-                f"Failed to connect to Google Sheets: {
-                    str(e)}")
+                f"Failed to connect to Google Sheets: {str(e)}"
+            )
             return False
 
     def open_spreadsheet(self, spreadsheet_name):
@@ -98,24 +110,29 @@ class GoogleSheetsHandler:
         """
         if not self.connected:
             display_error_message(
-                "Not connected to Google Sheets. Call connect() first.")
+                "Not connected to Google Sheets. Call connect() first."
+            )
             return False
 
         try:
             display_loading_message(
-                f"Opening spreadsheet: {spreadsheet_name}...")
+                f"Opening spreadsheet: {spreadsheet_name}..."
+            )
             self.spreadsheet = self.client.open(spreadsheet_name)
             display_success_message(
-                f"Spreadsheet '{spreadsheet_name}' opened successfully!")
+                f"Spreadsheet '{spreadsheet_name}' opened successfully!"
+            )
             return True
 
         except gspread.exceptions.SpreadsheetNotFound:
             display_error_message(
-                f"Spreadsheet '{spreadsheet_name}' not found")
+                f"Spreadsheet '{spreadsheet_name}' not found"
+            )
             display_error_message(
-                "Please check the spreadsheet name and sharing permissions")
+                "Please check the spreadsheet name and sharing permissions"
+            )
             return False
-        except Exception as e:
+        except (IOError, OSError) as e:
             display_error_message(f"Error opening spreadsheet: {str(e)}")
             return False
 
@@ -131,12 +148,14 @@ class GoogleSheetsHandler:
         """
         if not self.spreadsheet:
             display_error_message(
-                "No spreadsheet opened. Call open_spreadsheet() first.")
+                "No spreadsheet opened. Call open_spreadsheet() first."
+            )
             return None
 
         try:
             display_loading_message(
-                f"Loading data from worksheet: {worksheet_name}...")
+                f"Loading data from worksheet: {worksheet_name}..."
+            )
 
             # Get the worksheet
             worksheet = self.spreadsheet.worksheet(worksheet_name)
@@ -158,7 +177,8 @@ class GoogleSheetsHandler:
             ]
 
             spending_cols = [
-                col for col in df.columns if 'spending' in col.lower()]
+                col for col in df.columns if 'spending' in col.lower()
+            ]
             numeric_columns.extend(spending_cols)
 
             for col in numeric_columns:
@@ -170,17 +190,18 @@ class GoogleSheetsHandler:
             for col in boolean_columns:
                 if col in df.columns:
                     df[col] = df[col].str.lower().map(
-                        {'yes': True, 'no': False})
+                        {'yes': True, 'no': False}
+                    )
 
             display_success_message(
-                f"Loaded {
-                    len(df)} records from Google Sheets!")
+                f"Loaded {len(df)} records from Google Sheets!"
+            )
             return df
 
         except gspread.exceptions.WorksheetNotFound:
             display_error_message(f"Worksheet '{worksheet_name}' not found")
             return None
-        except Exception as e:
+        except (IOError, OSError) as e:
             display_error_message(f"Error loading data: {str(e)}")
             return None
 
@@ -200,12 +221,14 @@ class GoogleSheetsHandler:
         """
         if not self.spreadsheet:
             display_error_message(
-                "No spreadsheet opened. Call open_spreadsheet() first.")
+                "No spreadsheet opened. Call open_spreadsheet() first."
+            )
             return False
 
         try:
             display_loading_message(
-                "Saving analysis results to Google Sheets...")
+                "Saving analysis results to Google Sheets..."
+            )
 
             # Try to get existing worksheet, create if doesn't exist
             try:
@@ -240,7 +263,7 @@ class GoogleSheetsHandler:
             display_success_message("Analysis results saved successfully!")
             return True
 
-        except Exception as e:
+        except (IOError, OSError) as e:
             display_error_message(f"Error saving results: {str(e)}")
             return False
 
@@ -271,7 +294,8 @@ class GoogleSheetsHandler:
                 )
                 # Add headers
                 worksheet.append_row(
-                    ['Timestamp', 'Username', 'Action', 'Status'])
+                    ['Timestamp', 'Username', 'Action', 'Status']
+                )
 
             # Log the session
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -279,7 +303,7 @@ class GoogleSheetsHandler:
 
             return True
 
-        except Exception as e:
+        except (IOError, OSError):
             # Silent fail for logging - don't interrupt user experience
             return False
 
@@ -300,7 +324,8 @@ class GoogleSheetsHandler:
 
         try:
             display_loading_message(
-                f"Exporting data to worksheet: {worksheet_name}...")
+                f"Exporting data to worksheet: {worksheet_name}..."
+            )
 
             # Try to get existing worksheet, create if doesn't exist
             try:
@@ -320,10 +345,11 @@ class GoogleSheetsHandler:
             worksheet.update('A1', data)
 
             display_success_message(
-                f"Data exported to '{worksheet_name}' successfully!")
+                f"Data exported to '{worksheet_name}' successfully!"
+            )
             return True
 
-        except Exception as e:
+        except (IOError, OSError) as e:
             display_error_message(f"Error exporting data: {str(e)}")
             return False
 
@@ -342,12 +368,13 @@ class GoogleSheetsHandler:
                 "title": self.spreadsheet.title,
                 "url": self.spreadsheet.url,
                 "id": self.spreadsheet.id,
-                "worksheets": len(
-                    self.spreadsheet.worksheets()),
+                "worksheets": len(self.spreadsheet.worksheets()),
                 "worksheet_names": [
-                    ws.title for ws in self.spreadsheet.worksheets()]}
+                    ws.title for ws in self.spreadsheet.worksheets()
+                ]
+            }
             return info
-        except Exception as e:
+        except (IOError, OSError) as e:
             return {"error": str(e)}
 
     def get_worksheet_list(self):
@@ -363,7 +390,7 @@ class GoogleSheetsHandler:
         try:
             worksheets = self.spreadsheet.worksheets()
             return [ws.title for ws in worksheets]
-        except Exception as e:
+        except (IOError, OSError) as e:
             display_error_message(f"Error getting worksheet list: {str(e)}")
             return []
 
@@ -418,7 +445,8 @@ class GoogleSheetsHandler:
                 worksheet.append_row(row)
 
             display_success_message(
-                f"Spreadsheet '{spreadsheet_name}' created successfully!")
+                f"Spreadsheet '{spreadsheet_name}' created successfully!"
+            )
             print(f"\n📊 Spreadsheet URL: {spreadsheet.url}")
             print(
                 "⚠️  IMPORTANT: Share this spreadsheet with your "
@@ -430,7 +458,7 @@ class GoogleSheetsHandler:
 
             return True
 
-        except Exception as e:
+        except (IOError, OSError) as e:
             display_error_message(f"Error creating spreadsheet: {str(e)}")
             return False
 
