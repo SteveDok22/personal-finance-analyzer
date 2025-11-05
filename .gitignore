@@ -1,7 +1,8 @@
+@"
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
+*`$py.class
 
 # Virtual Environment
 venv/
@@ -22,12 +23,9 @@ Thumbs.db
 
 # Credentials (CRITICAL!)
 creds.json
-*.json
 
-# Exports
+# Exports (generated files only)
 exports/
-*.png
-*.csv
 
 # Python
 *.pyc
@@ -35,7 +33,6 @@ exports/
 *.pyd
 .Python
 pip-log.txt
-pip-delete-this-directory.txt
 
 # Testing
 .pytest_cache/
@@ -48,3 +45,7 @@ htmlcov/
 # Node (from CI template)
 node_modules/
 package-lock.json
+
+# NOTE: data/ folder is INCLUDED for sample CSV!
+# Only ignore exports, not data
+"@ | Out-File -FilePath .gitignore -Encoding utf8
